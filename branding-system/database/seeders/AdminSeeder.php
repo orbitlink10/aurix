@@ -65,7 +65,18 @@ class AdminSeeder extends Seeder
             ]
         );
 
+        $demoAdmin = User::firstOrCreate(
+            ['email' => 'admin@demo.com'],
+            [
+                'name' => 'Demo Admin',
+                'password' => Hash::make('admin123'),
+            ]
+        );
+
         $adminUser->roles()->sync([$adminRole->id]);
         $adminUser->permissions()->sync($permissionModels->pluck('id'));
+
+        $demoAdmin->roles()->sync([$adminRole->id]);
+        $demoAdmin->permissions()->sync($permissionModels->pluck('id'));
     }
 }

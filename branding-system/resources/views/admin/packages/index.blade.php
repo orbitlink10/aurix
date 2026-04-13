@@ -59,7 +59,7 @@
             </div>
             <div class="md:col-span-2">
                 <label class="block text-sm mb-1">Features (one per line)</label>
-                <textarea name="features_text" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-white">{{ old('features_text', isset($editing) ? implode(\"\\n\", $editing->features ?? []) : '') }}</textarea>
+                <textarea name="features_text" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-white">{{ old('features_text', isset($editing) ? implode("\n", $editing->features ?? []) : '') }}</textarea>
             </div>
             <div class="md:col-span-2">
                 <button class="bg-sky-500 hover:bg-sky-400 text-slate-900 font-semibold px-4 py-2 rounded">{{ isset($editing) ? 'Update' : 'Create' }}</button>

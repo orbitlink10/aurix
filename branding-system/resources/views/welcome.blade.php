@@ -10,6 +10,16 @@
         <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700|fraunces:500,600,700" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>
+            .slider-shell { position: relative; overflow: hidden; border-radius: 24px; box-shadow: 0 18px 40px rgba(15,23,42,0.16); }
+            .slider-track { display: flex; transition: transform 0.7s ease; }
+            .slide { min-width: 100%; position: relative; }
+            .slide img { width: 100%; height: 360px; object-fit: cover; display: block; }
+            .slide-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,23,42,0.55) 0%, rgba(15,23,42,0.05) 70%); color: #fff; padding: 32px; display: flex; flex-direction: column; justify-content: flex-end; }
+            .slide-dots { position: absolute; bottom: 14px; right: 18px; display: flex; gap: 8px; }
+            .slide-dots button { width: 10px; height: 10px; border-radius: 999px; border: none; background: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s; }
+            .slide-dots button.active { width: 24px; background: #22d3ee; }
+        </style>
     </head>
     <body>
         <div class="page">
@@ -33,6 +43,40 @@
             </header>
 
             <main id="top">
+                @if(isset($slides) && $slides->count())
+                <section class="section" style="padding-top:24px;">
+                    <div class="container">
+                        <div class="slider-shell" x-data="{ current: 0, total: {{ $slides->count() }} }" x-init="setInterval(()=>{ current = (current+1)%total; }, 2000)">
+                            <div class="slider-track" :style="`transform: translateX(-${current * 100}%);`">
+                                @foreach($slides as $slide)
+                                    <div class="slide">
+                                        @if($slide->image_url)
+                                            <img src="{{ $slide->image_url }}" alt="{{ $slide->title ?? 'Slide' }}">
+                                        @endif
+                                        <div class="slide-overlay">
+                                            @if($slide->title)
+                                                <p class="eyebrow" style="color:#a5f3fc;">{{ $slide->title }}</p>
+                                            @endif
+                                            @if($slide->caption)
+                                                <h3 class="section-title" style="color:#fff; margin: 4px 0 8px;">{{ $slide->caption }}</h3>
+                                            @endif
+                                            @if($slide->button_text && $slide->button_url)
+                                                <a href="{{ $slide->button_url }}" class="btn" style="align-self:flex-start;">{{ $slide->button_text }}</a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="slide-dots">
+                                @foreach($slides as $index => $slide)
+                                    <button :class="current === {{ $index }} ? 'active' : ''" @click="current={{ $index }}"></button>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                @endif
+
                 <section class="hero">
                     <div class="container hero-grid">
                         <div class="hero-copy">
@@ -59,13 +103,42 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="hero-visual reveal" style="--delay: 0.2s;">
-                            <img class="hero-image" src="/images/hero-showcase.svg" alt="Aurix brand system preview" loading="eager">
+                        @php
+                            $heroMotionImages = (isset($heroImageUrls) && count($heroImageUrls)) ? $heroImageUrls : ['/images/hero-showcase.svg'];
+                        @endphp
+                        <div class="hero-visual reveal" style="--delay: 0.2s;" x-data='{"current":0,"images":@json($heroMotionImages)}' x-init="if (images.length > 1) { setInterval(() => { current = (current + 1) % images.length; }, 3000); }">
+                            <img class="hero-image" :src="images[current]" alt="Aurix brand system preview" loading="eager">
                             <div class="hero-chip hero-chip-top" aria-hidden="true">Strategy • Identity • Packaging • Digital</div>
                             <div class="hero-chip hero-chip-bottom" aria-hidden="true">Brand kits delivered in 6-8 weeks</div>
                         </div>
                     </div>
                 </section>
+
+                @if(isset($workCategories) && $workCategories->count())
+                <section class="design-categories">
+                    <div class="container">
+                        <div class="design-categories-head">
+                            <h2>Design categories</h2>
+                            <a href="#work" class="design-categories-link">View all categories <span aria-hidden="true">↗</span></a>
+                        </div>
+                        <div class="design-categories-list">
+                            @foreach($workCategories as $category)
+                                <article class="design-category">
+                                    <div class="design-category-image-wrap">
+                                        @if($category->image_url)
+                                            <img class="design-category-image" src="{{ $category->image_url }}" alt="{{ $category->name }}" loading="lazy">
+                                        @else
+                                            <div class="design-category-image design-category-image-fallback" aria-hidden="true"></div>
+                                        @endif
+                                    </div>
+                                    <h3>{{ $category->name }}</h3>
+                                    <p>{{ $category->item_count }} {{ $category->item_count == 1 ? 'item' : 'items' }}</p>
+                                </article>
+                            @endforeach
+                        </div>
+                    </div>
+                </section>
+                @endif
 
                 <section class="trusted">
                     <div class="container">
@@ -90,46 +163,71 @@
                             <p class="section-lead reveal" style="--delay: 0.3s;">Clear strategy, a tight visual system, and delivery-ready files your team can use immediately - from print to product.</p>
                         </div>
                         <div class="cards-grid">
-                            <article class="card reveal" style="--delay: 0.1s;">
-                                <img class="card-icon" src="/images/icons/strategy.svg" alt="" aria-hidden="true" loading="lazy">
-                                <h3>Brand strategy</h3>
-                                <p>Positioning, messaging, and differentiation tuned for Kenyan audiences.</p>
-                                <ul class="card-list">
-                                    <li>Workshop + research</li>
-                                    <li>Messaging &amp; tone</li>
-                                    <li>Go-to-market story</li>
-                                </ul>
-                            </article>
-                            <article class="card reveal" style="--delay: 0.2s;">
-                                <img class="card-icon" src="/images/icons/identity.svg" alt="" aria-hidden="true" loading="lazy">
-                                <h3>Visual identity</h3>
-                                <p>Logo systems, typography, and colors that translate from billboards to apps.</p>
-                                <ul class="card-list">
-                                    <li>Logo suite</li>
-                                    <li>Typography &amp; palette</li>
-                                    <li>Brand guidelines</li>
-                                </ul>
-                            </article>
-                            <article class="card reveal" style="--delay: 0.3s;">
-                                <img class="card-icon" src="/images/icons/packaging.svg" alt="" aria-hidden="true" loading="lazy">
-                                <h3>Packaging + retail</h3>
-                                <p>Packaging, wayfinding, and in-store brand cues that drive shelf presence.</p>
-                                <ul class="card-list">
-                                    <li>Packaging system</li>
-                                    <li>Print-ready files</li>
-                                    <li>Retail rollout kit</li>
-                                </ul>
-                            </article>
-                            <article class="card reveal" style="--delay: 0.4s;">
-                                <img class="card-icon" src="/images/icons/digital.svg" alt="" aria-hidden="true" loading="lazy">
-                                <h3>Digital experiences</h3>
-                                <p>Web and product design for experiences that feel seamless on mobile.</p>
-                                <ul class="card-list">
-                                    <li>Website UI</li>
-                                    <li>Design systems</li>
-                                    <li>Handoff + QA</li>
-                                </ul>
-                            </article>
+                            @if(isset($services) && $services->count())
+                                @foreach($services as $index => $service)
+                                    @php
+                                        $descriptionLines = collect(preg_split('/\r\n|\r|\n/', (string) ($service->description ?? '')))
+                                            ->map(fn ($line) => trim($line))
+                                            ->filter()
+                                            ->values();
+                                        $lead = $descriptionLines->first() ?? 'Service description coming soon.';
+                                        $highlights = $descriptionLines->slice(1, 3);
+                                    @endphp
+                                    <article class="card reveal" style="--delay: {{ number_format(0.1 + (($index % 4) * 0.1), 1) }}s;">
+                                        <img class="card-icon" src="{{ $service->image_url ?? '/images/icons/strategy.svg' }}" alt="{{ $service->name }} icon" loading="lazy">
+                                        <h3>{{ $service->name }}</h3>
+                                        <p>{{ $lead }}</p>
+                                        @if($highlights->count())
+                                            <ul class="card-list">
+                                                @foreach($highlights as $highlight)
+                                                    <li>{{ $highlight }}</li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </article>
+                                @endforeach
+                            @else
+                                <article class="card reveal" style="--delay: 0.1s;">
+                                    <img class="card-icon" src="/images/icons/strategy.svg" alt="" aria-hidden="true" loading="lazy">
+                                    <h3>Brand strategy</h3>
+                                    <p>Positioning, messaging, and differentiation tuned for Kenyan audiences.</p>
+                                    <ul class="card-list">
+                                        <li>Workshop + research</li>
+                                        <li>Messaging &amp; tone</li>
+                                        <li>Go-to-market story</li>
+                                    </ul>
+                                </article>
+                                <article class="card reveal" style="--delay: 0.2s;">
+                                    <img class="card-icon" src="/images/icons/identity.svg" alt="" aria-hidden="true" loading="lazy">
+                                    <h3>Visual identity</h3>
+                                    <p>Logo systems, typography, and colors that translate from billboards to apps.</p>
+                                    <ul class="card-list">
+                                        <li>Logo suite</li>
+                                        <li>Typography &amp; palette</li>
+                                        <li>Brand guidelines</li>
+                                    </ul>
+                                </article>
+                                <article class="card reveal" style="--delay: 0.3s;">
+                                    <img class="card-icon" src="/images/icons/packaging.svg" alt="" aria-hidden="true" loading="lazy">
+                                    <h3>Packaging + retail</h3>
+                                    <p>Packaging, wayfinding, and in-store brand cues that drive shelf presence.</p>
+                                    <ul class="card-list">
+                                        <li>Packaging system</li>
+                                        <li>Print-ready files</li>
+                                        <li>Retail rollout kit</li>
+                                    </ul>
+                                </article>
+                                <article class="card reveal" style="--delay: 0.4s;">
+                                    <img class="card-icon" src="/images/icons/digital.svg" alt="" aria-hidden="true" loading="lazy">
+                                    <h3>Digital experiences</h3>
+                                    <p>Web and product design for experiences that feel seamless on mobile.</p>
+                                    <ul class="card-list">
+                                        <li>Website UI</li>
+                                        <li>Design systems</li>
+                                        <li>Handoff + QA</li>
+                                    </ul>
+                                </article>
+                            @endif
                         </div>
                     </div>
                 </section>
@@ -352,5 +450,6 @@
                 </div>
             </footer>
         </div>
+        <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     </body>
 </html>

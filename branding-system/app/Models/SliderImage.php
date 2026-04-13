@@ -2,44 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
-class Service extends Model
+class SliderImage extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'slug',
-        'description',
+        'title',
+        'caption',
+        'button_text',
+        'button_url',
         'image_path',
-        'base_price',
         'is_active',
+        'sort_order',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'base_price' => 'decimal:2',
     ];
 
     protected $appends = ['image_url'];
-
-    public function packages()
-    {
-        return $this->hasMany(Package::class);
-    }
-
-    public function leads()
-    {
-        return $this->hasMany(Lead::class);
-    }
-
-    public function orderItems()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
 
     public function getImageUrlAttribute(): ?string
     {
@@ -47,11 +32,13 @@ class Service extends Model
             return null;
         }
 
+        // Primary: uploads disk (served from public/uploads, no symlink required)
         $uploads = Storage::disk('uploads');
         if ($uploads->exists($this->image_path)) {
             return $uploads->url($this->image_path);
         }
 
+        // Fallback: public disk (for existing files) and opportunistically copy forward
         $public = Storage::disk('public');
         if ($public->exists($this->image_path)) {
             try {
@@ -60,6 +47,7 @@ class Service extends Model
                 }
                 return $uploads->url($this->image_path);
             } catch (\Throwable $e) {
+                // If copy fails, still return the original public path
                 return asset('storage/'.$this->image_path);
             }
         }
