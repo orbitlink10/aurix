@@ -3,527 +3,252 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ config('app.name', 'Aurix Brand Studio') }}</title>
-        <meta name="description" content="Aurix is a Kenyan branding studio shaping bold identities, packaging, and digital experiences for growing businesses across East Africa.">
-
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700|fraunces:500,600,700" rel="stylesheet" />
-
+        <title>Aurix Branding</title>
+        <meta name="description" content="Aurix Branding provides custom apparel, promotional products, signage, and branded print materials with nationwide delivery.">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preconnect" href="https://naiprinters.co.ke" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link rel="icon" href="{{ asset('images/aurix-mark.svg') }}" type="image/svg+xml">
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body>
+    <body class="taf-page">
         @php
-            $heroImages = collect((isset($heroImageUrls) && count($heroImageUrls)) ? $heroImageUrls : ['/images/hero-showcase.svg'])
-                ->filter()
-                ->values();
-
-            $heroFrames = collect(isset($slides) && $slides->count() ? $slides : [])
-                ->map(fn ($slide) => [
-                    'image' => $slide->image_url,
-                    'label' => $slide->title ?: 'Featured rollout',
-                    'headline' => $slide->caption ?: 'Identity, packaging, and digital systems built to travel.',
-                    'button_text' => $slide->button_text,
-                    'button_url' => $slide->button_url,
-                ])
-                ->filter(fn (array $frame) => filled($frame['image']))
-                ->values();
-
-            if ($heroFrames->isEmpty()) {
-                $heroFrames = $heroImages->map(fn (string $image, int $index) => [
-                    'image' => $image,
-                    'label' => $index === 0 ? 'Aurix Branding Studio' : 'East Africa brand systems',
-                    'headline' => $index === 0
-                        ? 'Identity, packaging, and digital design that stays coherent under pressure.'
-                        : 'Built for launches, refreshes, and rollout moments that need fast alignment.',
-                    'button_text' => null,
-                    'button_url' => null,
-                ])->values();
-            }
-
-            $trustMarks = [
-                'Ndoto Coffee',
-                'Lakeview Labs',
-                'Safari Trail Hotels',
-                'Kibera Makers',
-                'Orbit Health',
+            $assetBase = 'https://naiprinters.co.ke';
+            $fallbackCategories = [
+                ['name' => 'Caps', 'image' => '/storage/media-library/vcwO607a80yVPosKoaJDe8TTghzXiidTi71bZcKR.jpg'],
+                ['name' => 'T-Shirts', 'image' => '/storage/media-library/gPxJcSfQyNq800mYR7L9ShbOa9v14tFT9EllYXfN.jpg'],
+                ['name' => 'Bags', 'image' => '/storage/media-library/blAadlyvjfYisJc7kTbQ3KaKGe4mNx5utdFy0NJQ.png'],
+                ['name' => 'Banners', 'image' => '/storage/media-library/DnFPnNQR1k6VMcpEpywCvt3BFzmAwbEnax0ywKop.jpg'],
+                ['name' => 'Business Cards', 'image' => '/storage/media-library/om47dlzLTyw1w5x6zYITYxOkLyUImobXJDdKQYyL.jpg'],
+                ['name' => 'Brochures', 'image' => '/storage/media-library/WTWxzKuUU0eJbzVWCMJgthfA3cSs7EQ8jtpazyj4.png'],
             ];
-
-            $deliveryMoments = [
-                'Positioning and verbal direction',
-                'Identity systems for print and digital',
-                'Packaging and launch assets ready for production',
+            $homepageCategories = isset($workCategories) && $workCategories->count()
+                ? $workCategories->map(fn ($category) => [
+                    'name' => $category->name,
+                    'image' => $category->image_url ?: asset('images/hero-showcase.svg'),
+                    'item_count' => $category->item_count,
+                    'is_custom' => true,
+                ])->values()->all()
+                : array_map(fn ($category) => $category + ['item_count' => null, 'is_custom' => false], $fallbackCategories);
+            $homepageHeroImages = isset($heroImageUrls) && count($heroImageUrls)
+                ? array_values($heroImageUrls)
+                : [
+                    $assetBase.'/storage/media-library/vcwO607a80yVPosKoaJDe8TTghzXiidTi71bZcKR.jpg',
+                    $assetBase.'/storage/media-library/gPxJcSfQyNq800mYR7L9ShbOa9v14tFT9EllYXfN.jpg',
+                    $assetBase.'/storage/media-library/CsoceV7QRBwRhuWCHHEiM8qm845tbT4YLmjrguSE.png',
+                ];
+            $contact = $contactSettings ?? \App\Models\SiteSetting::defaultContactSettings();
+            $whatsappPhone = preg_replace('/\D+/', '', $contact['whatsapp_phone'] ?: $contact['phone']);
+            $whatsappUrl = 'https://wa.me/'.$whatsappPhone.'?text='.rawurlencode($contact['whatsapp_message']);
+            $serviceHighlights = [
+                ['title' => 'Heat Transfer', 'copy' => 'Sharp full-color apparel prints for events, teams, and staff uniforms.'],
+                ['title' => 'Embroidery', 'copy' => 'Premium stitched logos for polos, caps, hoodies, jackets, and bags.'],
+                ['title' => 'Laser Etching', 'copy' => 'Clean permanent branding for tumblers, awards, plaques, and gifts.'],
+                ['title' => 'Large Format', 'copy' => 'Banners, backdrops, wall graphics, vehicle stickers, and shop signage.'],
             ];
-
-            $caseStudies = [
-                [
-                    'meta' => 'Retail / Nairobi',
-                    'title' => 'Kifaru Outdoor Gear',
-                    'summary' => 'Unified brand system for new stores and ecommerce rollout.',
-                    'image' => '/images/work/kifaru.svg',
-                    'metrics' => ['+38% repeat buyers', '12 store kits'],
-                ],
-                [
-                    'meta' => 'Fintech / Kisumu',
-                    'title' => 'PesaLink Partners',
-                    'summary' => 'Brand refresh and app UI for a youth-first wallet.',
-                    'image' => '/images/work/pesalink.svg',
-                    'metrics' => ['2x sign-ups', '45k new users'],
-                ],
-                [
-                    'meta' => 'Hospitality / Mombasa',
-                    'title' => 'Coastal Haven Resorts',
-                    'summary' => 'Repositioned luxury boutique stays to international travelers.',
-                    'image' => '/images/work/coastal.svg',
-                    'metrics' => ['+29% bookings', '7 brand touchpoints'],
-                ],
-            ];
-
-            $insightItems = [
-                [
-                    'title' => 'Retail visibility',
-                    'copy' => 'Shoppers spend under 6 seconds deciding between competing shelves. Strong contrast still earns the first look.',
-                ],
-                [
-                    'title' => 'Mobile-first trust',
-                    'copy' => 'Most first impressions happen on a phone. Consistent interface behavior removes doubt fast.',
-                ],
-                [
-                    'title' => 'Regional storytelling',
-                    'copy' => 'Brands that connect to local context tend to earn stronger referral momentum in the first quarter after launch.',
-                ],
-            ];
-
-            $testimonials = [
-                [
-                    'quote' => 'Aurix gave us a brand language that fits Nairobi and still feels global. The launch kit saved weeks of internal work.',
-                    'author' => 'Amara K., Marketing Lead, Orbit Health',
-                ],
-                [
-                    'quote' => 'The strategy sprint forced our team to tighten the story before we spent money on assets. Launch felt far cleaner after that.',
-                    'author' => 'David O., Founder, Lakeview Labs',
-                ],
+            $featuredProducts = [
+                ['cat' => 'Promotional Items', 'name' => 'Branded Lanyards', 'price' => '450', 'image' => '/storage/product-thumbnails/RB22IMcehGJedRgMrsuo8lzCbXuoCGJs7akE1NQn.png'],
+                ['cat' => 'Apparel', 'name' => 'Custom Hoodies', 'price' => '2,800', 'image' => '/storage/media-library/gPxJcSfQyNq800mYR7L9ShbOa9v14tFT9EllYXfN.jpg'],
+                ['cat' => 'Print', 'name' => 'Business Cards', 'price' => '10', 'image' => '/storage/product-thumbnails/GLhAqU3GevIf2xpwSMaLB1tsLmZxYLO2eyVI2lvS.jpg'],
+                ['cat' => 'Displays', 'name' => 'Rollup Banners', 'price' => '8,700', 'image' => '/storage/product-thumbnails/qV1hP9lRiIeXcN8Bu9tagqfUTf8RuBY59LjUXjgg.jpg'],
             ];
         @endphp
-        <div class="page">
-            <header class="site-header">
-                <div class="container nav">
-                    <a class="brand" href="#top" aria-label="Aurix home" data-cursor="Home" data-magnetic>
-                        <img class="brand-mark" src="/images/aurix-mark.svg" alt="" width="28" height="28" aria-hidden="true">
-                        <span class="brand-name">Aurix</span>
-                    </a>
-                    <nav class="nav-links" aria-label="Primary">
-                        <a href="#work" data-magnetic>Work</a>
-                        <a href="#services" data-magnetic>Services</a>
-                        <a href="#process" data-magnetic>Approach</a>
-                        <a href="#insights" data-magnetic>Insights</a>
-                        <a href="#contact" data-magnetic>Contact</a>
-                    </nav>
-                    <div class="nav-actions">
-                        <a class="btn btn-secondary" href="#contact" data-cursor="Start" data-magnetic>Start a project</a>
-                    </div>
-                </div>
-            </header>
 
-            <main id="top">
-                <section
-                    class="hero"
-                    x-data='{"current":0,"frames":@json($heroFrames->values()->all())}'
-                    x-init="if (frames.length > 1) { setInterval(() => { current = (current + 1) % frames.length; }, 4500); }"
-                >
-                    <div class="hero-media" aria-hidden="true">
-                        <template x-for="(frame, index) in frames" :key="`${frame.image}-${index}`">
-                            <img
-                                class="hero-media-image"
-                                :class="{ 'is-active': current === index }"
-                                :src="frame.image"
-                                alt=""
-                                loading="eager"
-                            >
-                        </template>
-                    </div>
-                    <div class="hero-scrim" aria-hidden="true"></div>
-                    <div class="container hero-content">
-                        <div class="hero-copy">
-                            <p class="hero-kicker reveal" style="--delay: 0.05s;">Aurix Branding Studio</p>
-                            <h1 class="hero-title reveal" style="--delay: 0.15s;">Build a brand that stays sharp from first impression to rollout.</h1>
-                            <p class="hero-subtitle reveal" style="--delay: 0.22s;">Strategy-led identity, packaging, and digital design for ambitious teams across East Africa.</p>
-                            <p class="hero-lead reveal" style="--delay: 0.3s;">We turn positioning, visuals, and product touchpoints into one system your team can use across launch decks, packaging, campaigns, and product screens.</p>
-                            <div class="hero-actions reveal" style="--delay: 0.35s;">
-                                <a class="btn" href="#contact" data-cursor="Book" data-magnetic>Book a discovery call</a>
-                                <a class="btn btn-ghost" href="#work" data-cursor="View" data-magnetic>See case studies</a>
-                            </div>
-                        </div>
-                        <div class="hero-footer">
-                            <div class="hero-spotlight reveal" style="--delay: 0.4s;">
-                                <p class="eyebrow">Current rollout</p>
-                                <h2 x-text="frames[current] ? frames[current].headline : ''"></h2>
-                                <p class="hero-spotlight-copy" x-text="frames[current] ? frames[current].label : ''"></p>
-                                <a
-                                    class="hero-inline-link"
-                                    x-show="frames[current] && frames[current].button_url && frames[current].button_text"
-                                    :href="frames[current] ? frames[current].button_url : '#'"
-                                    x-text="frames[current] ? frames[current].button_text : ''"
-                                ></a>
-                                <div class="hero-dots" x-show="frames.length > 1">
-                                    <template x-for="(frame, index) in frames" :key="index">
-                                        <button type="button" :class="{ 'is-active': current === index }" @click="current = index">
-                                            <span class="sr-only" x-text="`Show frame ${index + 1}`"></span>
-                                        </button>
-                                    </template>
-                                </div>
-                            <div class="hero-chip hero-chip-top" aria-hidden="true">Strategy • Identity • Packaging • Digital</div>
-                            <div class="hero-chip hero-chip-bottom" aria-hidden="true">Brand kits delivered in 6-8 weeks</div>
-                            <div class="hero-stats reveal" style="--delay: 0.48s;">
-                                <div class="hero-stat">
-                                    <h3>80+</h3>
-                                    <p>Brand launches across Kenya</p>
-                                </div>
-                                <div class="hero-stat">
-                                    <h3>6 weeks</h3>
-                                    <p>Average end-to-end turnaround</p>
-                                </div>
-                                <div class="hero-stat">
-                                    <h3>14</h3>
-                                    <p>Sectors served in East Africa</p>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                @if(isset($workCategories) && $workCategories->count())
-                <section class="section section-light design-categories">
-                    <div class="container">
-                        <div class="design-categories-head">
-                            <h2>Range when you need it. Cohesion when it matters.</h2>
-                            <a href="#work" class="design-categories-link">View all categories <span aria-hidden="true">↗</span></a>
-                        </div>
-                        <div class="design-categories-list">
-                            @foreach($workCategories as $category)
-                                <article class="design-category">
-                                    <div class="design-category-image-wrap">
-                                        @if($category->image_url)
-                                            <img class="design-category-image" src="{{ $category->image_url }}" alt="{{ $category->name }}" loading="lazy">
-                                        @else
-                                            <div class="design-category-image design-category-image-fallback" aria-hidden="true"></div>
-                                        @endif
-                                    </div>
-                                    <h3>{{ $category->name }}</h3>
-                                    <p>{{ $category->item_count }} {{ $category->item_count == 1 ? 'item' : 'items' }}</p>
-                                </article>
-                            @endforeach
-                        </div>
-                    </div>
-                </section>
-                @endif
-
-                <section class="trust-strip">
-                    <div class="container trust-strip-grid">
-                        <div class="trust-strip-copy reveal" style="--delay: 0.1s;">
-                            <p class="eyebrow">Trusted by growing teams</p>
-                            <div class="trusted-grid">
-                                @foreach($trustMarks as $mark)
-                                    <span>{{ $mark }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <div class="delivery-grid reveal" style="--delay: 0.2s;">
-                            @foreach($deliveryMoments as $index => $moment)
-                                <article class="delivery-item">
-                                    <span>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                    <p>{{ $moment }}</p>
-                                </article>
-                            @endforeach
-                        </div>
-                    </div>
-                </section>
-
-                <section id="services" class="section">
-                    <div class="container">
-                        <div class="section-head">
-                            <div>
-                                <p class="eyebrow reveal" style="--delay: 0.1s;">Services</p>
-                                <h2 class="section-title reveal" style="--delay: 0.2s;">A full-stack brand team, without the overhead.</h2>
-                            </div>
-                            <p class="section-lead reveal" style="--delay: 0.3s;">Clear strategy, a tight visual system, and delivery-ready files your team can use immediately - from print to product.</p>
-                        </div>
-                        <div class="cards-grid">
-                            @if(isset($services) && $services->count())
-                                @foreach($services as $index => $service)
-                                    @php
-                                        $descriptionLines = collect(preg_split('/\r\n|\r|\n/', (string) ($service->description ?? '')))
-                                            ->map(fn ($line) => trim($line))
-                                            ->filter()
-                                            ->values();
-                                        $lead = $descriptionLines->first() ?? 'Service description coming soon.';
-                                        $highlights = $descriptionLines->slice(1, 3);
-                                    @endphp
-                                    <article class="card reveal" style="--delay: {{ number_format(0.1 + (($index % 4) * 0.1), 1) }}s;">
-                                        <img class="card-icon" src="{{ $service->image_url ?? '/images/icons/strategy.svg' }}" alt="{{ $service->name }} icon" loading="lazy">
-                                        <h3>{{ $service->name }}</h3>
-                                        <p>{{ $lead }}</p>
-                                        @if($highlights->count())
-                                            <ul class="card-list">
-                                                @foreach($highlights as $highlight)
-                                                    <li>{{ $highlight }}</li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
-                                    </article>
-                                @endforeach
-                            @else
-                                <article class="card reveal" style="--delay: 0.1s;">
-                                    <img class="card-icon" src="/images/icons/strategy.svg" alt="" aria-hidden="true" loading="lazy">
-                                    <h3>Brand strategy</h3>
-                                    <p>Positioning, messaging, and differentiation tuned for Kenyan audiences.</p>
-                                    <ul class="card-list">
-                                        <li>Workshop + research</li>
-                                        <li>Messaging &amp; tone</li>
-                                        <li>Go-to-market story</li>
-                                    </ul>
-                                </article>
-                                <article class="card reveal" style="--delay: 0.2s;">
-                                    <img class="card-icon" src="/images/icons/identity.svg" alt="" aria-hidden="true" loading="lazy">
-                                    <h3>Visual identity</h3>
-                                    <p>Logo systems, typography, and colors that translate from billboards to apps.</p>
-                                    <ul class="card-list">
-                                        <li>Logo suite</li>
-                                        <li>Typography &amp; palette</li>
-                                        <li>Brand guidelines</li>
-                                    </ul>
-                                </article>
-                                <article class="card reveal" style="--delay: 0.3s;">
-                                    <img class="card-icon" src="/images/icons/packaging.svg" alt="" aria-hidden="true" loading="lazy">
-                                    <h3>Packaging + retail</h3>
-                                    <p>Packaging, wayfinding, and in-store brand cues that drive shelf presence.</p>
-                                    <ul class="card-list">
-                                        <li>Packaging system</li>
-                                        <li>Print-ready files</li>
-                                        <li>Retail rollout kit</li>
-                                    </ul>
-                                </article>
-                                <article class="card reveal" style="--delay: 0.4s;">
-                                    <img class="card-icon" src="/images/icons/digital.svg" alt="" aria-hidden="true" loading="lazy">
-                                    <h3>Digital experiences</h3>
-                                    <p>Web and product design for experiences that feel seamless on mobile.</p>
-                                    <ul class="card-list">
-                                        <li>Website UI</li>
-                                        <li>Design systems</li>
-                                        <li>Handoff + QA</li>
-                                    </ul>
-                                </article>
-                            @endif
-                        </div>
-                    </div>
-                </section>
-
-                <section id="branding" class="section gallery">
-                    <div class="container">
-                        <div class="section-head">
-                            <div>
-                                <p class="eyebrow reveal" style="--delay: 0.1s;">Branding assets</p>
-                                <h2 class="section-title reveal" style="--delay: 0.2s;">A system you can deploy everywhere.</h2>
-                            </div>
-                            <p class="section-lead reveal" style="--delay: 0.3s;">We deliver clean files and a consistent visual language - ready for social, packaging, signage, and digital UI.</p>
-                        </div>
-
-                        <div class="gallery-grid">
-                            <figure class="gallery-item reveal" style="--delay: 0.1s;">
-                                <img class="gallery-image" src="/images/brand-kit.svg" alt="Brand kit layout preview" loading="lazy">
-                                <figcaption>
-                                    <h3>Brand kit</h3>
-                                    <p>Guidelines, templates, and usage rules.</p>
-                                </figcaption>
-                            </figure>
-                            <figure class="gallery-item reveal" style="--delay: 0.2s;">
-                                <img class="gallery-image" src="/images/packaging.svg" alt="Packaging layout preview" loading="lazy">
-                                <figcaption>
-                                    <h3>Packaging</h3>
-                                    <p>Print-ready systems with shelf impact.</p>
-                                </figcaption>
-                            </figure>
-                            <figure class="gallery-item reveal" style="--delay: 0.3s;">
-                                <img class="gallery-image" src="/images/web-ui.svg" alt="Web UI layout preview" loading="lazy">
-                                <figcaption>
-                                    <h3>Web UI</h3>
-                                    <p>Modern interfaces built for mobile.</p>
-                                </figcaption>
-                            </figure>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="work" class="section work">
-                    <div class="container">
-                        <div class="section-head">
-                            <div>
-                                <p class="eyebrow reveal" style="--delay: 0.1s;">Selected work</p>
-                                <h2 class="section-title reveal" style="--delay: 0.2s;">Case studies built on momentum, not vanity.</h2>
-                            </div>
-                            <p class="section-lead reveal" style="--delay: 0.3s;">We measure success in growth markers like sign-ups, retention, and customer recall.</p>
-                        </div>
-                        <div class="case-grid">
-                            @foreach($caseStudies as $case)
-                                <article class="case-card reveal" style="--delay: {{ number_format(0.1 + ($loop->index * 0.08), 2) }}s;">
-                                    <div class="case-meta">{{ $case['meta'] }}</div>
-                                    <img class="case-thumb" src="{{ $case['image'] }}" alt="" aria-hidden="true" loading="lazy">
-                                    <h3>{{ $case['title'] }}</h3>
-                                    <p>{{ $case['summary'] }}</p>
-                                    <div class="case-metrics">
-                                        @foreach($case['metrics'] as $metric)
-                                            <span>{{ $metric }}</span>
-                                        @endforeach
-                                    </div>
-                                </article>
-                            @endforeach
-                        </div>
-                    </div>
-                </section>
-
-                <section id="process" class="section process">
-                    <div class="container">
-                        <div class="section-head">
-                            <div>
-                                <p class="eyebrow reveal" style="--delay: 0.1s;">Process</p>
-                                <h2 class="section-title reveal" style="--delay: 0.2s;">A focused, collaborative path from story to system.</h2>
-                            </div>
-                            <p class="section-lead reveal" style="--delay: 0.3s;">Clear checkpoints, weekly reviews, and delivery-ready files for your internal team or agency.</p>
-                        </div>
-                        <ol class="process-grid">
-                            <li class="process-step reveal" style="--delay: 0.1s;">
-                                <span class="step-num">01</span>
-                                <h3>Discover</h3>
-                                <p>Market research, stakeholder interviews, and brand audit.</p>
-                            </li>
-                            <li class="process-step reveal" style="--delay: 0.2s;">
-                                <span class="step-num">02</span>
-                                <h3>Define</h3>
-                                <p>Positioning, voice, and story narrative built for local resonance.</p>
-                            </li>
-                            <li class="process-step reveal" style="--delay: 0.3s;">
-                                <span class="step-num">03</span>
-                                <h3>Design</h3>
-                                <p>Identity, layouts, and digital components with system thinking.</p>
-                            </li>
-                            <li class="process-step reveal" style="--delay: 0.4s;">
-                                <span class="step-num">04</span>
-                                <h3>Deliver</h3>
-                                <p>Launch kits, brand guidelines, and rollout support.</p>
-                            </li>
-                        </ol>
-                    </div>
-                </section>
-
-                <section id="insights" class="section insights">
-                    <div class="container">
-                        <div class="section-head">
-                            <div>
-                                <p class="eyebrow reveal" style="--delay: 0.1s;">Insights</p>
-                                <h2 class="section-title reveal" style="--delay: 0.2s;">Signals we track across East Africa.</h2>
-                            </div>
-                            <p class="section-lead reveal" style="--delay: 0.3s;">We share field notes and data snapshots so your team stays ahead of changing customer expectations.</p>
-                        </div>
-                        <div class="insights-grid">
-                            @foreach($insightItems as $index => $insight)
-                                <article class="insight reveal" style="--delay: {{ number_format(0.1 + ($index * 0.08), 2) }}s;">
-                                    <h3>{{ $insight['title'] }}</h3>
-                                    <p>{{ $insight['copy'] }}</p>
-                                </article>
-                            @endforeach
-                        </div>
-                    </div>
-                </section>
-
-                <section class="section testimonials">
-                    <div class="container">
-                        <div class="section-head">
-                            <div>
-                                <p class="eyebrow reveal" style="--delay: 0.1s;">Client voices</p>
-                                <h2 class="section-title reveal" style="--delay: 0.2s;">Teams stay with us for the partnership, not just the deliverables.</h2>
-                            </div>
-                            <p class="section-lead reveal" style="--delay: 0.3s;">We work closely with marketing leads, founders, and product teams to make rollouts smooth.</p>
-                        </div>
-                        <div class="testimonial-grid">
-                            @foreach($testimonials as $index => $testimonial)
-                                <blockquote class="testimonial reveal" style="--delay: {{ number_format(0.1 + ($index * 0.08), 2) }}s;">
-                                    <p>"{{ $testimonial['quote'] }}"</p>
-                                    <cite>{{ $testimonial['author'] }}</cite>
-                                </blockquote>
-                            @endforeach
-                        </div>
-                    </div>
-                </section>
-
-                <section id="contact" class="section contact">
-                    <div class="container contact-grid">
-                        <div class="contact-copy">
-                            <p class="eyebrow reveal" style="--delay: 0.1s;">Start a project</p>
-                            <h2 class="section-title reveal" style="--delay: 0.2s;">Bring the brief, the draft, or the messy version.</h2>
-                            <p class="section-lead reveal" style="--delay: 0.3s;">We reply within two business days with a clear next step, a likely timeline, and the right scope for the stage you are in.</p>
-                            <div class="contact-details reveal" style="--delay: 0.38s;">
-                                <p>hello@aurix.co.ke</p>
-                                <p>Nairobi, Kenya</p>
-                                <p>Remote across East Africa</p>
-                            </div>
-                        </div>
-                        <div class="contact-panel reveal" style="--delay: 0.2s;">
-                            <article class="contact-step">
-                                <span>01</span>
-                                <div>
-                                    <h3>Share the goal</h3>
-                                    <p>Tell us what is changing, what is blocked, and what needs to ship first.</p>
-                                </div>
-                            </article>
-                            <article class="contact-step">
-                                <span>02</span>
-                                <div>
-                                    <h3>Get the scope</h3>
-                                    <p>We send back the most sensible path, not a padded list of deliverables.</p>
-                                </div>
-                            </article>
-                            <article class="contact-step">
-                                <span>03</span>
-                                <div>
-                                    <h3>Start the rollout</h3>
-                                    <p>Discovery, design, and delivery begin with one shared direction from day one.</p>
-                                </div>
-                            </article>
-                            <div class="contact-actions">
-                                <a class="btn" href="mailto:hello@aurix.co.ke?subject=Project%20brief">Email the brief</a>
-                                <a class="btn btn-secondary" href="tel:+254700000000">Call +254 700 000 000</a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-
-            <footer class="site-footer">
-                <div class="container footer-grid">
-                    <div>
-                        <a class="brand" href="#top">
-                            <img class="brand-mark" src="/images/aurix-mark.svg" alt="" width="28" height="28" aria-hidden="true">
-                            <span class="brand-name">Aurix</span>
-                        </a>
-                        <p>Brand systems built for Kenyan growth teams and founders.</p>
-                    </div>
-                    <div>
-                        <h4>Studios</h4>
-                        <p>Nairobi, Kenya</p>
-                        <p>Remote across East Africa</p>
-                    </div>
-                    <div>
-                        <h4>Contact</h4>
-                        <p>hello@aurix.co.ke</p>
-                        <p>+254 700 000 000</p>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <p>{{ now()->year }} Aurix Brand Studio. All rights reserved.</p>
-                </div>
-            </footer>
+        <div class="taf-topbar">
+            <div class="taf-wrap">
+                <span>Since 2019</span>
+                <span>Custom apparel, promo items, signage, and print</span>
+                <span>Same-day support for urgent jobs</span>
+            </div>
         </div>
-        <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+        <header class="taf-header">
+            <div class="taf-wrap taf-header-main">
+                <a href="{{ url('/') }}" class="taf-brand" aria-label="Aurix Branding home">
+                    <img src="{{ $logoUrl ?: asset('images/aurix-mark.svg') }}" alt="Aurix Branding logo">
+                    <span>Aurix Branding</span>
+                </a>
+                <form class="taf-search" action="{{ route('public.products.index') }}" method="get">
+                    <input name="q" type="search" placeholder="Search apparel, branding, signage">
+                    <button type="submit" aria-label="Search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6 16.65a7.5 7.5 0 0 0 10.65 0Z"/></svg>
+                    </button>
+                </form>
+                <div class="taf-phone">
+                    <span>{{ $contact['support_label'] }}</span>
+                    <strong>{{ $contact['phone'] }}</strong>
+                </div>
+            </div>
+            <nav class="taf-nav" aria-label="Product categories">
+                <div class="taf-wrap">
+                    @foreach(['Women', 'Men', 'Outerwear', 'Headwear', 'Uniforms', 'Youth', 'Gifts', 'Infant & Toddler', 'Brands'] as $item)
+                        <a href="{{ route('public.products.index', ['q' => $item]) }}">{{ $item }}</a>
+                    @endforeach
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="taf-hero">
+                <div class="taf-wrap taf-hero-grid">
+                    <div class="taf-hero-copy">
+                        <span class="taf-eyebrow">Custom branding made simple</span>
+                        <h1>We offer 100% customized branding and embroidery services</h1>
+                        <p>Build branded apparel, promotional products, signage, and business materials with design help, reliable production, and nationwide delivery.</p>
+                        <div class="taf-hero-actions">
+                            <a href="{{ route('public.products.index') }}" class="taf-primary-btn">Browse Products</a>
+                            <a href="{{ $whatsappUrl }}" class="taf-link-btn">Request Quote</a>
+                        </div>
+                        <div class="taf-callout">
+                            <span>Or call us at</span>
+                            <strong>{{ $contact['phone'] }}</strong>
+                        </div>
+                    </div>
+                    <div class="taf-hero-visual" style="--hero-slide-count: {{ count($homepageHeroImages) }};">
+                        <div class="taf-hero-badge">100% custom</div>
+                        @foreach($homepageHeroImages as $index => $heroImageUrl)
+                            <img
+                                src="{{ $heroImageUrl }}"
+                                alt=""
+                                style="--hero-slide-index: {{ $index }};"
+                                @class(['is-active' => $index === 0])
+                            >
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+
+            <section class="taf-section">
+                <div class="taf-wrap">
+                    <div class="taf-section-head centered">
+                        <h2>Shop Promotional Products</h2>
+                        <p>Choose popular products and order your customized branding.</p>
+                    </div>
+                    <div class="taf-category-row">
+                        @foreach($homepageCategories as $category)
+                            <a href="{{ route('public.products.index', ['q' => $category['name']]) }}" class="taf-category-card">
+                                <span class="taf-category-media">
+                                    <img src="{{ $category['is_custom'] ? $category['image'] : $assetBase.$category['image'] }}" alt="{{ $category['name'] }}">
+                                </span>
+                                <strong>{{ $category['name'] }}</strong>
+                                @if($category['item_count'])
+                                    <small>{{ $category['item_count'] }} {{ $category['item_count'] == 1 ? 'item' : 'items' }}</small>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+
+            <section class="taf-section taf-services">
+                <div class="taf-wrap">
+                    <div class="taf-section-head">
+                        <div>
+                            <span class="taf-eyebrow">Services</span>
+                            <h2>Decoration methods for every brand surface</h2>
+                        </div>
+                        <a href="{{ route('public.products.index') }}">View all products</a>
+                    </div>
+                    <div class="taf-service-grid">
+                        @foreach($serviceHighlights as $service)
+                            <article class="taf-service-card">
+                                <span></span>
+                                <h3>{{ $service['title'] }}</h3>
+                                <p>{{ $service['copy'] }}</p>
+                            </article>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+
+            <section class="taf-section">
+                <div class="taf-wrap taf-split">
+                    <div class="taf-custom-card">
+                        <img src="{{ $assetBase }}/storage/media-library/gPxJcSfQyNq800mYR7L9ShbOa9v14tFT9EllYXfN.jpg" alt="Custom apparel">
+                    </div>
+                    <div class="taf-split-copy">
+                        <span class="taf-eyebrow">Apparel customization</span>
+                        <h2>Bring your logo to uniforms, caps, hoodies, bags, and staff kits</h2>
+                        <p>Pick the product, share your artwork, and our team will guide the right print, embroidery, or finishing method for the job.</p>
+                        <div class="taf-brand-strip">
+                            <span>Nike</span>
+                            <span>Gildan</span>
+                            <span>Fruit of the Loom</span>
+                            <span>Custom</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="taf-section">
+                <div class="taf-wrap">
+                    <div class="taf-section-head">
+                        <div>
+                            <span class="taf-eyebrow">Popular picks</span>
+                            <h2>Ready-to-brand products</h2>
+                        </div>
+                        <a href="{{ route('public.products.index') }}">All products</a>
+                    </div>
+                    <div class="taf-product-grid">
+                        @foreach($featuredProducts as $product)
+                            <a href="{{ route('public.products.index', ['q' => $product['name']]) }}" class="taf-product-card">
+                                <img src="{{ $assetBase }}{{ $product['image'] }}" alt="{{ $product['name'] }}">
+                                <span>{{ $product['cat'] }}</span>
+                                <h3>{{ $product['name'] }}</h3>
+                                <p>From KES {{ $product['price'] }}</p>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+
+            <section class="taf-testimonial">
+                <div class="taf-wrap taf-testimonial-grid">
+                    <div>
+                        <span class="taf-eyebrow">Trusted production partner</span>
+                        <h2>Fast support for teams, campaigns, events, and retail brands.</h2>
+                    </div>
+                    <blockquote>
+                        "Aurix helps us move from artwork to branded merchandise quickly. The team is practical, responsive, and consistent on quality."
+                        <cite>Procurement Lead, Nairobi</cite>
+                    </blockquote>
+                </div>
+            </section>
+        </main>
+
+        <footer class="taf-footer">
+            <div class="taf-wrap taf-footer-grid">
+                <div>
+                    <h3>Aurix Branding</h3>
+                    <p>Custom apparel, promotional products, print, and signage for brands that need dependable production.</p>
+                </div>
+                <div>
+                    <h4>Shop</h4>
+                    <a href="{{ route('public.products.index') }}">All Products</a>
+                    <a href="{{ route('public.products.index', ['q' => 'Apparel']) }}">Apparel</a>
+                    <a href="{{ route('public.products.index', ['q' => 'Banners']) }}">Banners</a>
+                </div>
+                <div>
+                    <h4>Support</h4>
+                    <a href="{{ $whatsappUrl }}">WhatsApp Quote</a>
+                    @if($contact['email'])
+                        <a href="mailto:{{ $contact['email'] }}">{{ $contact['email'] }}</a>
+                    @endif
+                    @if($contact['address'])
+                        <span>{{ $contact['address'] }}</span>
+                    @endif
+                    <a href="{{ url('/login') }}">Client Login</a>
+                    <a href="{{ url('/') }}">Home</a>
+                </div>
+                <form class="taf-newsletter" action="{{ route('public.products.index') }}" method="get">
+                    <h4>Find products faster</h4>
+                    <div>
+                        <input name="q" placeholder="Search products">
+                        <button type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+        </footer>
     </body>
 </html>

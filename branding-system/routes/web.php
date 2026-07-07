@@ -14,11 +14,13 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogTagController;
+use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\HomeHeroImageController;
+use App\Http\Controllers\Admin\SiteLogoController;
 use App\Http\Controllers\Admin\WorkCategoryController;
 use App\Http\Controllers\Admin\HomePageContentController;
 use App\Models\SliderImage;
@@ -26,6 +28,9 @@ use App\Models\BlogPost;
 use App\Models\SiteSetting;
 use App\Models\Service;
 use App\Models\WorkCategory;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Schema;
 
 Route::get('/', function () {
@@ -37,6 +42,14 @@ Route::get('/', function () {
         ? SiteSetting::heroImageUrls()
         : [];
 
+    $logoUrl = Schema::hasTable('site_settings')
+        ? SiteSetting::logoUrl()
+        : null;
+
+    $contactSettings = Schema::hasTable('site_settings')
+        ? SiteSetting::contactSettings()
+        : SiteSetting::defaultContactSettings();
+
     $workCategories = Schema::hasTable('work_categories')
         ? WorkCategory::where('is_active', true)->orderBy('sort_order')->orderByDesc('created_at')->get()
         : collect();
@@ -45,7 +58,7 @@ Route::get('/', function () {
         ? Service::where('is_active', true)->orderBy('id')->get()
         : collect();
 
-    return view('welcome', compact('slides', 'heroImageUrls', 'workCategories', 'services'));
+    return view('welcome', compact('slides', 'heroImageUrls', 'logoUrl', 'contactSettings', 'workCategories', 'services'));
 });
 
 Route::any('/blog/{probe}', function () {
@@ -64,6 +77,54 @@ Route::get('/blog-posts/{slug}', function (string $slug) {
     return redirect()->route('public.blog.show', ['slug' => $slug], 301);
 });
 
+Route::get('/products', function () {
+    if (! Schema::hasTable('products')) {
+        $products = new LengthAwarePaginator([], 0, 12);
+        $categories = collect();
+
+        return view('products.index', compact('products', 'categories'));
+    }
+
+    $query = Product::query()
+        ->where('is_active', true)
+        ->with('category')
+        ->orderByDesc('created_at');
+
+    if (request()->filled('q')) {
+        $search = request('q');
+        $query->where(function ($products) use ($search) {
+            $products->where('name', 'like', '%'.$search.'%')
+                ->orWhere('description', 'like', '%'.$search.'%')
+                ->orWhere('category_name', 'like', '%'.$search.'%')
+                ->orWhere('subcategory_name', 'like', '%'.$search.'%');
+        });
+    }
+
+    if (request()->filled('category') && Schema::hasTable('product_categories')) {
+        $category = ProductCategory::where('slug', request('category'))->first();
+
+        if ($category) {
+            $query->whereIn('product_category_id', array_merge([$category->id], $category->descendantIds()));
+        }
+    }
+
+    $products = $query->paginate(12)->withQueryString();
+
+    $categories = Schema::hasTable('product_categories')
+        ? ProductCategory::with('children')
+            ->withCount(['products' => fn ($products) => $products->where('is_active', true)])
+            ->parents()
+            ->orderBy('name')
+            ->get()
+        : collect();
+
+    return view('products.index', compact('products', 'categories'));
+})->name('public.products.index');
+
+Route::get('/products/{product:slug}', function (Product $product) {
+    return view('products.show', compact('product'));
+})->name('public.products.show');
+
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
@@ -71,8 +132,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('home-page-content', [HomePageContentController::class, 'index'])->name('home-page-content.index');
+    Route::post('home-page-content/contact', [HomePageContentController::class, 'updateContact'])->name('home-page-content.contact.update');
 
     Route::resource('services', ServiceController::class);
+    Route::resource('categories', ProductCategoryController::class);
     Route::resource('products', ProductController::class);
     Route::resource('packages', PackageController::class);
     Route::resource('leads', LeadController::class);
@@ -83,10 +146,15 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('invoices', InvoiceController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
 
     Route::resource('blog-posts', BlogPostController::class);
+    Route::post('blog-posts/bulk', [BlogPostController::class, 'bulkDestroy'])->name('blog-posts.bulk');
+    Route::get('pages', [BlogPostController::class, 'index'])->name('pages.index');
+    Route::get('new-post', [BlogPostController::class, 'create'])->name('new-post');
     Route::resource('blog-categories', BlogCategoryController::class);
     Route::resource('blog-tags', BlogTagController::class);
     Route::resource('slider-images', \App\Http\Controllers\Admin\SliderImageController::class)->except(['show']);
     Route::resource('work-categories', WorkCategoryController::class)->except(['show']);
+    Route::post('site-settings/logo', [SiteLogoController::class, 'store'])->name('site-settings.logo.store');
+    Route::delete('site-settings/logo', [SiteLogoController::class, 'destroy'])->name('site-settings.logo.destroy');
     Route::post('site-settings/home-hero-image', [HomeHeroImageController::class, 'store'])->name('site-settings.home-hero-image.store');
     Route::delete('site-settings/home-hero-image', [HomeHeroImageController::class, 'destroy'])->name('site-settings.home-hero-image.destroy');
 

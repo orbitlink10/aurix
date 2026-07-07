@@ -7,6 +7,7 @@ use App\Models\BlogPost;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BlogPostController extends Controller
@@ -48,23 +49,27 @@ class BlogPostController extends Controller
             'slug' => ['nullable', 'string', 'max:255', 'unique:blog_posts,slug'],
             'seo_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:300'],
-            'excerpt' => ['nullable', 'string'],
+            'image_alt_text' => ['nullable', 'string', 'max:255'],
+            'heading' => ['nullable', 'string', 'max:255'],
+            'content_type' => ['required', 'string', 'in:Post,Page'],
             'body' => ['required', 'string'],
             'status' => ['required', 'string', 'in:draft,published'],
             'published_at' => ['nullable', 'date'],
             'category_id' => ['nullable', 'exists:blog_categories,id'],
-            'tag_ids' => ['nullable', 'array'],
-            'tag_ids.*' => ['exists:blog_tags,id'],
             'cover_image' => ['nullable', 'string', 'max:255'],
+            'photo' => ['nullable', 'image', 'max:4096'],
         ]);
 
         $data['slug'] = $data['slug'] ?? Str::slug($data['title']).'-'.Str::random(4);
         if ($data['status'] === 'published' && empty($data['published_at'])) {
             $data['published_at'] = now();
         }
+        if ($request->hasFile('photo')) {
+            $data['cover_image'] = $request->file('photo')->store('blog', 'public');
+        }
+        unset($data['photo']);
 
         $post = BlogPost::create(array_merge($data, ['user_id' => auth()->id()]));
-        $post->tags()->sync($data['tag_ids'] ?? []);
 
         return redirect()->route('admin.blog-posts.index')->with('success', 'Post created.');
     }
@@ -99,23 +104,30 @@ class BlogPostController extends Controller
             'slug' => ['nullable', 'string', 'max:255', 'unique:blog_posts,slug,'.$blogPost->id],
             'seo_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:300'],
-            'excerpt' => ['nullable', 'string'],
+            'image_alt_text' => ['nullable', 'string', 'max:255'],
+            'heading' => ['nullable', 'string', 'max:255'],
+            'content_type' => ['required', 'string', 'in:Post,Page'],
             'body' => ['required', 'string'],
             'status' => ['required', 'string', 'in:draft,published'],
             'published_at' => ['nullable', 'date'],
             'category_id' => ['nullable', 'exists:blog_categories,id'],
-            'tag_ids' => ['nullable', 'array'],
-            'tag_ids.*' => ['exists:blog_tags,id'],
             'cover_image' => ['nullable', 'string', 'max:255'],
+            'photo' => ['nullable', 'image', 'max:4096'],
         ]);
 
         $data['slug'] = $data['slug'] ?? Str::slug($data['title']).'-'.Str::random(4);
         if ($data['status'] === 'published' && empty($data['published_at'])) {
             $data['published_at'] = now();
         }
+        if ($request->hasFile('photo')) {
+            if ($blogPost->cover_image) {
+                Storage::disk('public')->delete($blogPost->cover_image);
+            }
+            $data['cover_image'] = $request->file('photo')->store('blog', 'public');
+        }
+        unset($data['photo']);
 
         $blogPost->update($data);
-        $blogPost->tags()->sync($data['tag_ids'] ?? []);
 
         return redirect()->route('admin.blog-posts.index')->with('success', 'Post updated.');
     }
@@ -128,5 +140,18 @@ class BlogPostController extends Controller
         $blogPost->delete();
 
         return back()->with('success', 'Post deleted.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'action' => ['required', 'in:delete'],
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer', 'exists:blog_posts,id'],
+        ]);
+
+        BlogPost::whereIn('id', $data['ids'])->delete();
+
+        return back()->with('success', 'Selected posts deleted.');
     }
 }
