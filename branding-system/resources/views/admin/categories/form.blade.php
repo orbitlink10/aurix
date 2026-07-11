@@ -3,10 +3,11 @@
 @section('content')
 @php
     $isEditing = $category->exists;
+    $isSubcategoryForm = $isSubcategoryForm ?? false;
 @endphp
 
 <section class="content-header">
-    <h1 class="page-title">{{ $isEditing ? 'Edit Category' : 'Create Category' }}</h1>
+    <h1 class="page-title">{{ $isEditing ? ($isSubcategoryForm ? 'Edit Sub Category' : 'Edit Category') : ($isSubcategoryForm ? 'Create Sub Category' : 'Create Category') }}</h1>
 </section>
 
 <section class="content">
@@ -14,6 +15,9 @@
         @csrf
         @if($isEditing)
             @method('PUT')
+        @endif
+        @if($isSubcategoryForm)
+            <input type="hidden" name="is_subcategory" value="1">
         @endif
 
         <div class="form-group">
@@ -29,7 +33,19 @@
                     <option value="{{ $parent->id }}" @selected(old('parent_id', $category->parent_id) == $parent->id)>{{ $parent->name }}</option>
                 @endforeach
             </select>
-            <p class="field-help">Choose a parent when this should be a subcategory.</p>
+            <p class="field-help">{{ $isSubcategoryForm ? 'Choose the main category this sub category belongs to.' : 'Choose a parent when this should be a subcategory.' }}</p>
+        </div>
+
+        <div class="menu-settings">
+            <label class="toggle-row">
+                <input type="hidden" name="show_in_menu" value="0">
+                <input type="checkbox" name="show_in_menu" value="1" {{ old('show_in_menu', $category->show_in_menu ?? true) ? 'checked' : '' }}>
+                <span>Show in storefront menu</span>
+            </label>
+            <div class="form-group">
+                <label for="menu_sort_order">Menu order</label>
+                <input type="number" name="menu_sort_order" id="menu_sort_order" class="form-control" value="{{ old('menu_sort_order', $category->menu_sort_order ?? 0) }}" min="0" max="9999">
+            </div>
         </div>
 
         <div class="form-group">
@@ -56,8 +72,8 @@
         </div>
 
         <div class="form-actions">
-            <a href="{{ route('admin.categories.index') }}" class="btn-secondary-soft">Cancel</a>
-            <button type="submit" class="btn-primary-soft">{{ $isEditing ? 'Update Category' : 'Create Category' }}</button>
+            <a href="{{ $isSubcategoryForm ? route('admin.sub-categories.index') : route('admin.categories.index') }}" class="btn-secondary-soft">Cancel</a>
+            <button type="submit" class="btn-primary-soft">{{ $isEditing ? ($isSubcategoryForm ? 'Update Sub Category' : 'Update Category') : ($isSubcategoryForm ? 'Create Sub Category' : 'Create Category') }}</button>
         </div>
     </form>
 </section>
@@ -108,6 +124,30 @@
         color: #64748b;
         font-size: 0.84rem;
         margin: 6px 0 0;
+    }
+
+    .menu-settings {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 180px;
+        gap: 16px;
+        align-items: end;
+    }
+
+    .toggle-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 43px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+        padding: 10px 12px;
+        color: #334155;
+        font-weight: 600;
+    }
+
+    .toggle-row input[type="checkbox"] {
+        accent-color: #2563eb;
     }
 
     .editor-field {
@@ -182,6 +222,10 @@
     }
 
     @media (max-width: 640px) {
+        .menu-settings {
+            grid-template-columns: 1fr;
+        }
+
         .form-actions {
             flex-direction: column-reverse;
         }

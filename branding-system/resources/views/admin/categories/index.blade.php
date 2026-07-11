@@ -1,11 +1,17 @@
 @extends('layouts.admin')
 
 @section('content')
+@php
+    $mode = $mode ?? 'categories';
+    $title = $title ?? 'Categories';
+    $isSubcategoryPage = $mode === 'subcategories';
+@endphp
+
 <section class="content-header">
     <div class="categories-heading">
-        <h1 class="page-title">Categories</h1>
-        <a href="{{ route('admin.categories.create') }}" class="category-create-btn">
-            <i class="fa-solid fa-plus"></i> Create New Category
+        <h1 class="page-title">{{ $title }}</h1>
+        <a href="{{ route('admin.categories.create', $isSubcategoryPage ? ['type' => 'subcategory'] : []) }}" class="category-create-btn">
+            <i class="fa-solid fa-plus"></i> {{ $isSubcategoryPage ? 'Create New Sub Category' : 'Create New Category' }}
         </a>
     </div>
 </section>
@@ -18,8 +24,12 @@
                     <tr>
                         <th class="id-cell">ID</th>
                         <th>Name</th>
-                        <th>Parent</th>
+                        @if($isSubcategoryPage)
+                            <th>Parent</th>
+                        @endif
                         <th>Slug</th>
+                        <th class="products-cell">Menu</th>
+                        <th class="products-cell">Order</th>
                         <th>Photo</th>
                         <th class="products-cell">Products</th>
                         <th class="products-cell">Subcategories</th>
@@ -36,8 +46,16 @@
                                 @endif
                                 {{ $category->name }}
                             </td>
-                            <td>{{ $category->parent?->name ?: 'Top level' }}</td>
+                            @if($isSubcategoryPage)
+                                <td>{{ $category->parent?->name ?: 'Top level' }}</td>
+                            @endif
                             <td class="category-slug">{{ $category->slug }}</td>
+                            <td class="products-cell">
+                                <span class="menu-badge {{ ($category->show_in_menu ?? true) ? 'is-visible' : 'is-hidden' }}">
+                                    {{ ($category->show_in_menu ?? true) ? 'Shown' : 'Hidden' }}
+                                </span>
+                            </td>
+                            <td class="products-cell">{{ $category->menu_sort_order ?? 0 }}</td>
                             <td>
                                 @if($category->image_url)
                                     <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="category-thumb">
@@ -67,7 +85,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="empty-row">No categories created.</td>
+                            <td colspan="{{ $isSubcategoryPage ? 10 : 9 }}" class="empty-row">No {{ $isSubcategoryPage ? 'sub categories' : 'categories' }} created.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -154,6 +172,27 @@
 
     .category-slug {
         color: #64748b;
+    }
+
+    .menu-badge {
+        display: inline-flex;
+        justify-content: center;
+        min-width: 68px;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .menu-badge.is-visible {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .menu-badge.is-hidden {
+        background: #fee2e2;
+        color: #b91c1c;
     }
 
     .subcategory-indent {
