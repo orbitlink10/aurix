@@ -12,8 +12,8 @@
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            background: #f7f8fa;
-            color: #111827;
+            background: #f7f3ea;
+            color: #17140f;
             font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
         a { color: inherit; text-decoration: none; }
@@ -23,9 +23,9 @@
             margin: 0 auto;
         }
         .helpbar {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-            color: #475569;
+            background: #fffaf1;
+            border-bottom: 1px solid rgba(23, 20, 15, 0.13);
+            color: #6f675b;
             font-size: 13px;
         }
         .helpbar .wrap,
@@ -40,11 +40,11 @@
             min-height: 34px;
         }
         .helpbar strong {
-            color: #0f172a;
+            color: #17140f;
         }
         .header {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
+            background: #fffaf1;
+            border-bottom: 1px solid rgba(23, 20, 15, 0.13);
         }
         .header .wrap {
             min-height: 74px;
@@ -52,24 +52,23 @@
         .brand {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            font-size: 22px;
+            gap: 12px;
+            color: #17140f;
+            font-size: 18px;
             font-weight: 900;
+            white-space: nowrap;
         }
-        .brand-mark {
-            display: grid;
-            width: 40px;
-            height: 40px;
-            place-items: center;
-            border-radius: 10px;
-            background: #0f9f6e;
-            color: #fff;
-            font-weight: 900;
+        .brand img {
+            width: 54px;
+            height: 54px;
+            flex: 0 0 54px;
+            border-radius: 2px;
+            object-fit: cover;
         }
         .nav {
             display: flex;
             gap: 20px;
-            color: #334155;
+            color: #17140f;
             font-size: 14px;
             font-weight: 800;
         }
@@ -82,13 +81,13 @@
         }
         .quote-btn {
             border-radius: 999px;
-            background: #0b5ed7;
-            color: #fff;
+            background: linear-gradient(135deg, #c9942f, #f1cf7a);
+            color: #111111;
             padding: 10px 14px;
         }
         .dealbar {
-            background: #0f9f6e;
-            color: #fff;
+            background: #111111;
+            color: #fffaf1;
         }
         .dealbar .wrap {
             min-height: 46px;
@@ -98,8 +97,8 @@
             text-align: center;
         }
         .subbar {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
+            background: #fffaf1;
+            border-bottom: 1px solid rgba(23, 20, 15, 0.13);
         }
         .subbar .wrap {
             display: grid;
@@ -108,9 +107,9 @@
             padding: 12px 0;
         }
         .subbar-card {
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(23, 20, 15, 0.13);
             border-radius: 10px;
-            background: #f8fafc;
+            background: #fffaf1;
             padding: 12px;
         }
         .subbar-card strong {
@@ -120,7 +119,7 @@
         .subbar-card span {
             display: block;
             margin-top: 3px;
-            color: #64748b;
+            color: #6f675b;
             font-size: 12px;
         }
         .breadcrumb {
@@ -128,12 +127,12 @@
             flex-wrap: wrap;
             gap: 8px;
             padding: 18px 0;
-            color: #64748b;
+            color: #6f675b;
             font-size: 14px;
             font-weight: 700;
         }
         .breadcrumb a {
-            color: #0b5ed7;
+            color: #c9942f;
         }
         .product-top {
             display: grid;
@@ -159,11 +158,10 @@
             border-radius: 10px;
             background: #ffffff;
             padding: 6px;
-            box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
-            cursor: pointer;
+            box-shadow: 0 1px 0 rgba(23, 20, 15, 0.06);
         }
         .thumb.is-active {
-            border-color: #0b5ed7;
+            border-color: #c9942f;
         }
         .thumb img,
         .hero-media img {
@@ -177,9 +175,9 @@
             place-items: center;
             overflow: hidden;
             border-radius: 14px;
-            background: #ffffff;
+            background: #fffaf1;
             padding: 28px;
-            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 14px 36px rgba(23, 20, 15, 0.08);
         }
         .image-empty {
             display: grid;
@@ -187,21 +185,21 @@
             min-height: 420px;
             place-items: center;
             border-radius: 12px;
-            background: #eef2f7;
-            color: #94a3b8;
+            background: #efe7d8;
+            color: #6f675b;
             font-weight: 800;
         }
         .choice-panel {
             border-radius: 14px;
-            background: #ffffff;
+            background: #fffaf1;
             padding: 26px;
-            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 14px 36px rgba(23, 20, 15, 0.08);
         }
         .rating {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #64748b;
+            color: #6f675b;
             font-size: 14px;
             font-weight: 800;
         }
@@ -216,14 +214,14 @@
             letter-spacing: 0;
         }
         .summary {
-            color: #475569;
+            color: #6f675b;
             font-size: 16px;
             line-height: 1.7;
         }
         .read-more {
             display: inline-flex;
             margin-top: 8px;
-            color: #0b5ed7;
+            color: #c9942f;
             font-weight: 900;
         }
         .product-facts {
@@ -233,13 +231,13 @@
             margin: 22px 0;
         }
         .fact {
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(23, 20, 15, 0.13);
             border-radius: 10px;
             padding: 12px;
         }
         .fact span {
             display: block;
-            color: #64748b;
+            color: #6f675b;
             font-size: 12px;
             font-weight: 800;
         }
@@ -258,7 +256,7 @@
             display: flex;
             gap: 9px;
             margin-top: 8px;
-            color: #334155;
+            color: #17140f;
             font-weight: 700;
         }
         .benefits li::before {
@@ -268,7 +266,7 @@
             flex: 0 0 auto;
             margin-top: 8px;
             border-radius: 999px;
-            background: #0f9f6e;
+            background: #c9942f;
         }
         .option-group {
             margin-top: 18px;
@@ -282,7 +280,7 @@
             font-weight: 900;
         }
         .option-label span {
-            color: #64748b;
+            color: #6f675b;
             font-weight: 700;
         }
         .option-grid {
@@ -291,18 +289,18 @@
             gap: 10px;
         }
         .option {
-            border: 1px solid #dbe3ef;
+            border: 1px solid rgba(23, 20, 15, 0.13);
             border-radius: 10px;
             background: #fff;
             padding: 12px;
-            color: #334155;
+            color: #17140f;
             font-weight: 800;
         }
         .option.is-selected {
-            border-color: #0b5ed7;
-            background: #eef6ff;
-            color: #0b5ed7;
-            box-shadow: inset 0 0 0 1px #0b5ed7;
+            border-color: #c9942f;
+            background: rgba(201, 148, 47, 0.12);
+            color: #17140f;
+            box-shadow: inset 0 0 0 1px #c9942f;
         }
         .quantity-row {
             display: grid;
@@ -312,15 +310,15 @@
         }
         .qty-box,
         .price-box {
-            border: 1px solid #dbe3ef;
+            border: 1px solid rgba(23, 20, 15, 0.13);
             border-radius: 10px;
-            background: #f8fafc;
+            background: #ffffff;
             padding: 13px;
         }
         .qty-box span,
         .price-box span {
             display: block;
-            color: #64748b;
+            color: #6f675b;
             font-size: 12px;
             font-weight: 800;
         }
@@ -333,7 +331,7 @@
         .qty-control button {
             width: 30px;
             height: 30px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid rgba(23, 20, 15, 0.18);
             border-radius: 8px;
             background: #fff;
             cursor: pointer;
@@ -353,7 +351,7 @@
             font-weight: 900;
         }
         .each {
-            color: #64748b;
+            color: #6f675b;
             font-size: 13px;
             font-weight: 700;
         }
@@ -374,20 +372,20 @@
             text-align: center;
         }
         .cta.primary {
-            background: #0b5ed7;
-            color: #fff;
+            background: linear-gradient(135deg, #c9942f, #f1cf7a);
+            color: #111111;
         }
         .cta.secondary {
-            border: 1px solid #0b5ed7;
+            border: 1px solid #c9942f;
             background: #fff;
-            color: #0b5ed7;
+            color: #17140f;
         }
         .later {
             margin-top: 12px;
-            border: 1px dashed #cbd5e1;
+            border: 1px dashed rgba(201, 148, 47, 0.5);
             border-radius: 10px;
             padding: 13px;
-            color: #334155;
+            color: #17140f;
             text-align: center;
             font-weight: 800;
         }
@@ -396,7 +394,7 @@
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 16px;
-            color: #64748b;
+            color: #6f675b;
             font-size: 13px;
             font-weight: 800;
         }
@@ -405,9 +403,9 @@
             top: 0;
             z-index: 5;
             margin-top: 44px;
-            border-top: 1px solid #e5e7eb;
-            border-bottom: 1px solid #e5e7eb;
-            background: rgba(255, 255, 255, 0.96);
+            border-top: 1px solid rgba(23, 20, 15, 0.13);
+            border-bottom: 1px solid rgba(23, 20, 15, 0.13);
+            background: rgba(255, 250, 241, 0.96);
             backdrop-filter: blur(12px);
         }
         .tabs .wrap {
@@ -417,12 +415,12 @@
         }
         .tabs a {
             padding: 17px 0;
-            color: #475569;
+            color: #6f675b;
             font-weight: 900;
             white-space: nowrap;
         }
         .tabs a:first-child {
-            color: #0b5ed7;
+            color: #c9942f;
         }
         .content-grid {
             display: grid;
@@ -432,9 +430,9 @@
         }
         .content-card {
             border-radius: 14px;
-            background: #ffffff;
+            background: #fffaf1;
             padding: 28px;
-            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+            box-shadow: 0 14px 36px rgba(23, 20, 15, 0.06);
         }
         .content-card h2 {
             margin: 0 0 16px;
@@ -447,7 +445,7 @@
         }
         .content-card p,
         .content-card li {
-            color: #475569;
+            color: #6f675b;
             line-height: 1.75;
         }
         .benefit-icons {
@@ -457,7 +455,7 @@
             margin-top: 20px;
         }
         .benefit-icon {
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(23, 20, 15, 0.13);
             border-radius: 12px;
             padding: 16px;
             text-align: center;
@@ -470,8 +468,8 @@
             place-items: center;
             margin: 0 auto 9px;
             border-radius: 999px;
-            background: #e8f7f0;
-            color: #0f9f6e;
+            background: rgba(201, 148, 47, 0.14);
+            color: #c9942f;
         }
         .side-card {
             position: sticky;
@@ -487,17 +485,17 @@
             display: flex;
             justify-content: space-between;
             gap: 16px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid rgba(23, 20, 15, 0.13);
             padding: 13px 0;
-            color: #64748b;
+            color: #6f675b;
         }
         .spec-list strong {
-            color: #111827;
+            color: #17140f;
             text-align: right;
         }
         .footer {
-            background: #0f172a;
-            color: #fff;
+            background: #111111;
+            color: #fffaf1;
             padding: 34px 0;
         }
         .footer .wrap {
@@ -509,7 +507,7 @@
         }
         .footer p {
             margin: 0;
-            color: #cbd5e1;
+            color: rgba(255, 250, 241, 0.72);
         }
         @media (max-width: 980px) {
             .nav,
@@ -581,7 +579,6 @@
             'Durable production with clean, full-color finishing.',
             'Nationwide delivery and responsive quote support.',
         ];
-        $galleryImages = $product->gallery_image_urls;
     @endphp
 
     <div class="helpbar">
@@ -594,7 +591,7 @@
     <header class="header">
         <div class="wrap">
             <a href="{{ url('/') }}" class="brand">
-                <span class="brand-mark">A</span>
+                <img src="{{ asset('images/aurix-branding-logo.png') }}" alt="Aurix Branding logo">
                 <span>Aurix Branding</span>
             </a>
             <nav class="nav" aria-label="Main navigation">
@@ -636,26 +633,19 @@
             <section class="product-top">
                 <div class="gallery">
                     <div class="thumbs" aria-label="Product gallery thumbnails">
-                        @forelse($galleryImages as $index => $imageUrl)
-                            <button
-                                type="button"
-                                class="thumb {{ $index === 0 ? 'is-active' : '' }}"
-                                data-gallery-thumb
-                                data-full="{{ $imageUrl }}"
-                                data-alt="{{ $product->name }} image {{ $index + 1 }}"
-                                aria-label="Show {{ $product->name }} image {{ $index + 1 }}"
-                            >
-                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} thumbnail {{ $index + 1 }}">
-                            </button>
-                        @empty
-                            <div class="thumb is-active">
-                                <div class="image-empty">Image</div>
+                        @for($i = 0; $i < 5; $i++)
+                            <div class="thumb {{ $i === 0 ? 'is-active' : '' }}">
+                                @if($product->image_url)
+                                    <img src="{{ $product->image_url }}" alt="{{ $product->name }} thumbnail">
+                                @else
+                                    <div class="image-empty">Image</div>
+                                @endif
                             </div>
-                        @endforelse
+                        @endfor
                     </div>
                     <div class="hero-media">
-                        @if(count($galleryImages))
-                            <img id="productHeroImage" src="{{ $galleryImages[0] }}" alt="{{ $product->name }}">
+                        @if($product->image_url)
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
                         @else
                             <div class="image-empty">No product image</div>
                         @endif
@@ -801,21 +791,5 @@
             <a href="{{ route('public.products.index') }}">Back to products</a>
         </div>
     </footer>
-    <script>
-        const heroImage = document.getElementById('productHeroImage');
-
-        document.querySelectorAll('[data-gallery-thumb]').forEach((button) => {
-            button.addEventListener('click', () => {
-                if (!heroImage) {
-                    return;
-                }
-
-                heroImage.src = button.dataset.full;
-                heroImage.alt = button.dataset.alt || heroImage.alt;
-                document.querySelectorAll('[data-gallery-thumb]').forEach((thumb) => thumb.classList.remove('is-active'));
-                button.classList.add('is-active');
-            });
-        });
-    </script>
 </body>
 </html>

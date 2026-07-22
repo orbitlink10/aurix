@@ -34,7 +34,6 @@
                             <th>Image</th>
                             <th>Name</th>
                             <th>Price (KES)</th>
-                            <th>Images</th>
                             <th>Google Merchant</th>
                             <th>Category</th>
                             <th>Actions</th>
@@ -60,9 +59,8 @@
                                         <small class="price-note">has price</small>
                                     @endif
                                 </td>
-                                <td>{{ ($product->image_path ? 1 : 0) + $product->images->count() }}</td>
                                 <td>{{ $product->google_merchant ? 'Yes' : 'No' }}</td>
-                                <td>{{ $product->category?->name ?: $product->category_name ?: 'Unassigned' }}</td>
+                                <td>{{ $product->category_name ?: 'Unassigned' }}</td>
                                 <td class="action-cell">
                                     <a href="{{ route('public.products.show', ['product' => $product->slug]) }}" target="_blank" class="action-btn action-preview">
                                         <i class="fa-solid fa-eye"></i> Preview
@@ -77,7 +75,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="empty-row">No products created.</td>
+                                <td colspan="7" class="empty-row">No products created.</td>
                             </tr>
                         @endforelse
                     </tbody>

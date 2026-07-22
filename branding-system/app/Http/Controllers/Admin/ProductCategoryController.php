@@ -21,7 +21,6 @@ class ProductCategoryController extends Controller
         $categories = ProductCategory::with('parent')
             ->withCount(['products', 'children'])
             ->parents()
-            ->orderBy('menu_sort_order')
             ->orderBy('name')
             ->paginate(20);
 
@@ -37,7 +36,6 @@ class ProductCategoryController extends Controller
         $categories = ProductCategory::with('parent')
             ->withCount(['products', 'children'])
             ->whereNotNull('parent_id')
-            ->orderBy('menu_sort_order')
             ->orderBy('name')
             ->paginate(20);
 
@@ -59,41 +57,6 @@ class ProductCategoryController extends Controller
         ]);
     }
 
-    public function menu()
-    {
-        $categories = ProductCategory::with([
-                'children' => fn ($children) => $children
-                    ->withCount('products')
-                    ->orderBy('menu_sort_order')
-                    ->orderBy('name'),
-            ])
-            ->withCount(['products', 'children'])
-            ->parents()
-            ->orderBy('menu_sort_order')
-            ->orderBy('name')
-            ->get();
-
-        return view('admin.categories.menu', compact('categories'));
-    }
-
-    public function updateMenu(Request $request)
-    {
-        $data = $request->validate([
-            'items' => ['nullable', 'array'],
-            'items.*.show_in_menu' => ['nullable', 'boolean'],
-            'items.*.menu_sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
-        ]);
-
-        foreach (($data['items'] ?? []) as $categoryId => $item) {
-            ProductCategory::whereKey($categoryId)->update([
-                'show_in_menu' => (bool) ($item['show_in_menu'] ?? false),
-                'menu_sort_order' => (int) ($item['menu_sort_order'] ?? 0),
-            ]);
-        }
-
-        return redirect()->route('admin.store-menu.index')->with('success', 'Store menu updated.');
-    }
-
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -103,8 +66,6 @@ class ProductCategoryController extends Controller
             'meta_description' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'photo' => ['nullable', 'image', 'max:5120'],
-            'show_in_menu' => ['nullable', 'boolean'],
-            'menu_sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
         ]);
 
         if ($request->boolean('is_subcategory') && empty($data['parent_id'])) {
@@ -112,8 +73,6 @@ class ProductCategoryController extends Controller
         }
 
         $data['slug'] = $this->uniqueSlug($data['name']);
-        $data['show_in_menu'] = $request->boolean('show_in_menu');
-        $data['menu_sort_order'] = $data['menu_sort_order'] ?? 0;
 
         if ($request->hasFile('photo')) {
             $data['image_path'] = $request->file('photo')->store('categories', 'uploads');
@@ -155,8 +114,6 @@ class ProductCategoryController extends Controller
             'meta_description' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'photo' => ['nullable', 'image', 'max:5120'],
-            'show_in_menu' => ['nullable', 'boolean'],
-            'menu_sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
         ]);
 
         if ($request->boolean('is_subcategory') && empty($data['parent_id'])) {
@@ -170,9 +127,6 @@ class ProductCategoryController extends Controller
         if ($category->name !== $data['name']) {
             $data['slug'] = $this->uniqueSlug($data['name'], $category->id);
         }
-
-        $data['show_in_menu'] = $request->boolean('show_in_menu');
-        $data['menu_sort_order'] = $data['menu_sort_order'] ?? 0;
 
         if ($request->hasFile('photo')) {
             if ($category->image_path) {
@@ -241,7 +195,6 @@ class ProductCategoryController extends Controller
         return ProductCategory::query()
             ->whereNotIn('id', $excludedIds)
             ->parents()
-            ->orderBy('menu_sort_order')
             ->orderBy('name')
             ->get();
     }

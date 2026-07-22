@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -34,58 +35,43 @@ class Product extends Model
         'google_merchant' => 'boolean',
     ];
 
-    protected $appends = ['image_url', 'gallery_image_urls'];
+    protected $appends = ['image_url'];
+
+    public static function comparableName(string $name): string
+    {
+        $normalized = Str::of($name)
+            ->ascii()
+            ->lower()
+            ->replaceMatches('/[^a-z0-9]+/', ' ')
+            ->squish()
+            ->toString();
+
+        return collect(explode(' ', $normalized))
+            ->reject(fn ($word) => in_array($word, ['custom'], true))
+            ->map(fn ($word) => Str::singular($word))
+            ->implode('');
+    }
 
     public function getImageUrlAttribute(): ?string
     {
-        if ($this->image_path) {
-            return $this->resolveStoredImageUrl($this->image_path);
+        if (!$this->image_path) {
+            return null;
         }
 
-        $firstImage = $this->relationLoaded('images')
-            ? $this->images->first()
-            : $this->images()->first();
-
-        return $firstImage?->image_url;
-    }
-
-    public function getGalleryImageUrlsAttribute(): array
-    {
-        $urls = [];
-
-        if ($this->image_url) {
-            $urls[] = $this->image_url;
-        }
-
-        $images = $this->relationLoaded('images')
-            ? $this->images
-            : $this->images()->get();
-
-        foreach ($images as $image) {
-            if ($image->image_url) {
-                $urls[] = $image->image_url;
-            }
-        }
-
-        return array_values(array_unique($urls));
-    }
-
-    private function resolveStoredImageUrl(string $path): ?string
-    {
         $uploads = Storage::disk('uploads');
-        if ($uploads->exists($path)) {
-            return $uploads->url($path);
+        if ($uploads->exists($this->image_path)) {
+            return $uploads->url($this->image_path);
         }
 
         $public = Storage::disk('public');
-        if ($public->exists($path)) {
+        if ($public->exists($this->image_path)) {
             try {
-                if (!$uploads->exists($path)) {
-                    $uploads->put($path, $public->get($path));
+                if (!$uploads->exists($this->image_path)) {
+                    $uploads->put($this->image_path, $public->get($this->image_path));
                 }
-                return $uploads->url($path);
+                return $uploads->url($this->image_path);
             } catch (\Throwable $e) {
-                return asset('storage/'.$path);
+                return asset('storage/'.$this->image_path);
             }
         }
 
@@ -95,10 +81,5 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'product_category_id');
-    }
-
-    public function images()
-    {
-        return $this->hasMany(ProductImage::class)->orderBy('sort_order')->orderBy('id');
     }
 }

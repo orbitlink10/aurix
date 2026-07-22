@@ -18,13 +18,6 @@ class ProductCategory extends Model
         'meta_description',
         'description',
         'image_path',
-        'show_in_menu',
-        'menu_sort_order',
-    ];
-
-    protected $casts = [
-        'show_in_menu' => 'boolean',
-        'menu_sort_order' => 'integer',
     ];
 
     protected $appends = ['image_url'];

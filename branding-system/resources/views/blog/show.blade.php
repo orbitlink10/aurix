@@ -509,16 +509,10 @@
             text-decoration: none;
         }
 
-        .brand-mark {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            display: grid;
-            place-items: center;
-            background: linear-gradient(135deg, var(--aurix-purple), #1264d8);
-            color: #fff;
-            font-size: 16px;
-            font-weight: 800;
+        .footer-brand img {
+            width: auto;
+            height: 54px;
+            object-fit: contain;
         }
 
         .footer-brand strong {
@@ -854,7 +848,7 @@
                 <div class="footer-grid">
                     <div>
                         <h2 class="footer-title">CONTACT US</h2>
-                        <a class="footer-brand" href="{{ url('/') }}"><span class="brand-mark">A</span><strong>Aurix Branding</strong></a>
+                        <a class="footer-brand" href="{{ url('/') }}"><img src="{{ asset('images/aurix-branding-logo.png') }}" alt="Aurix Branding logo"></a>
                         <ul class="footer-contact">
                             <li><span class="footer-icon">›</span><span>{{ $phone }}</span></li>
                             @if(!empty($contact['email']))
