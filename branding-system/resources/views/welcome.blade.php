@@ -48,7 +48,6 @@
             }
             $homepageProductCards = $homepageProductRecords->count()
                 ? $homepageProductRecords->map(fn ($product) => [
-                    'cat' => $product->category?->name ?: $product->category_name ?: 'Product',
                     'name' => $product->name,
                     'price' => (float) $product->price,
                     'marked_price' => $product->marked_price ? (float) $product->marked_price : null,
@@ -155,10 +154,10 @@
                 <div class="taf-wrap">
                     <div class="taf-product-section-head">
                         <div>
-                            <span>Featured prints</span>
-                            <h2>Best sellers right now</h2>
+                            <span>Featured products</span>
+                            <h2>Latest products</h2>
                         </div>
-                        <p>Weekly drops <span></span> Limited runs</p>
+                        <p>Custom branding <span></span> Ready to order</p>
                     </div>
 
                     <div class="taf-product-grid">
@@ -187,7 +186,6 @@
                                     <span class="taf-customize-btn">Customize Now</span>
                                 </span>
                                 <span class="taf-product-info">
-                                    <small>{{ $product['cat'] }}</small>
                                     <strong>{{ $product['name'] }}</strong>
                                     <span class="taf-product-price">
                                         KSh {{ number_format($price, 0) }}
